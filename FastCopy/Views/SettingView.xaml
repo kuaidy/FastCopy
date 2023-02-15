@@ -10,6 +10,13 @@
         <TabControl TabStripPlacement="Left">
             <TabItem Header="常规" Width="100" BorderBrush="{x:Null}" BorderThickness="0">
                 <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="颜色主题："></Label>
+                        <ComboBox Width="60" Height="20" Text="{Binding ThemeName}">
+                            <ComboBoxItem Content="浅色"></ComboBoxItem>
+                            <ComboBoxItem Content="深色"></ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
                     <CheckBox IsChecked="{Binding IsCloseToTaskBar}">关闭时最小化到任务栏</CheckBox>
                     <CheckBox IsChecked="{Binding IsAutoUpdate}">启动检查更新</CheckBox>
                     <CheckBox IsChecked="{Binding IsAutoStart}">开机自启动</CheckBox>

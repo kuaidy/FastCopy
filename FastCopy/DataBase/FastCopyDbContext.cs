@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace FastCopy.DataBase
 {
-    public class FastCopyDbContext:DbContext
+    public class FastCopyDbContext : DbContext
     {
         public DbSet<CopyInfoModel> CopyInfos { get; set; }
-
         public DbSet<DetailSetModel> DetailSetModels { get; set; }
+        public DbSet<FtpInfoModel> FtpInfos { get; set; }
 
         public string DbPath { get; }
 
@@ -22,7 +22,7 @@ namespace FastCopy.DataBase
         public FastCopyDbContext()
         {
             string folder = Environment.CurrentDirectory + "\\data";
-            if (!Directory.Exists(folder)) 
+            if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
             }
@@ -38,6 +38,7 @@ namespace FastCopy.DataBase
         {
             modelBuilder.Entity<CopyInfoModel>().ToTable("CopyInfo");
             modelBuilder.Entity<DetailSetModel>().ToTable("DetailSetModel");
+            modelBuilder.Entity<FtpInfoModel>().ToTable("FtpInfo");
         }
     }
 }

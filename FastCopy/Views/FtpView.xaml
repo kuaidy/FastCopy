@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FastCopy.Views"
         mc:Ignorable="d"
-        Title="添加FTP文件夹" Height="225" Width="400" ResizeMode="NoResize">
+        Title="添加FTP文件夹" Height="225" Width="400" ResizeMode="NoResize" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
@@ -21,22 +21,27 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Label Content="FTP服务器" VerticalContentAlignment="Center"></Label>
-        <TextBox Grid.Row="0" Grid.Column="1" VerticalContentAlignment="Center"></TextBox>
+        <TextBox Grid.Row="0" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding CurrentFtpInfo.Ip}"></TextBox>
         <Label Grid.Column="2" Content="例如：www.example.com" VerticalContentAlignment="Center"></Label>
-        <Label Grid.Row="1" Content="远程文件夹" VerticalContentAlignment="Center"></Label>
-        <TextBox Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center"></TextBox>
-        <Label Grid.Row="1" Grid.Column="2" Content="例如：/或者/子文件夹" VerticalContentAlignment="Center"></Label>
-        <Label Grid.Row="2" Content="端口" VerticalContentAlignment="Center"></Label>
-        <TextBox Grid.Row="2" Grid.Column="1" VerticalContentAlignment="Center"></TextBox>
-        <CheckBox Grid.Row="2" Grid.Column="2" Content="使用被动模式" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Padding="0,-1,0,0" Margin="5,0,0,0"></CheckBox>
+        
+        <Label Grid.Row="2" Content="远程文件夹" VerticalContentAlignment="Center"></Label>
+        <TextBox Grid.Row="2" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding CurrentFtpInfo.Path}"></TextBox>
+        <Label Grid.Row="2" Grid.Column="2" Content="例如：/或者/子文件夹" VerticalContentAlignment="Center"></Label>
+        
+        <Label Grid.Row="1" Content="端口" VerticalContentAlignment="Center"></Label>
+        <TextBox Grid.Row="1" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding CurrentFtpInfo.Port}"></TextBox>
+        <CheckBox Grid.Row="1" Grid.Column="2" Content="使用被动模式" IsChecked="{Binding CurrentFtpInfo.IsPassiveMode}" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Padding="0,-1,0,0" Margin="5,0,0,0"></CheckBox>
+        
         <Label Grid.Row="3" Content="用户名" VerticalContentAlignment="Center"></Label>
-        <TextBox Grid.Row="3" Grid.Column="1" VerticalContentAlignment="Center"></TextBox>
+        <TextBox Grid.Row="3" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding CurrentFtpInfo.UserName}"></TextBox>
+        
         <Label Grid.Row="4" Content="密码" VerticalContentAlignment="Center"></Label>
-        <TextBox Grid.Row="4" Grid.Column="1" VerticalContentAlignment="Center"></TextBox>
+        <TextBox Grid.Row="4" Grid.Column="1" VerticalContentAlignment="Center" Text="{Binding CurrentFtpInfo.Password}"></TextBox>
+        
         <StackPanel Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" FlowDirection="LeftToRight" HorizontalAlignment="Right">
             <Button Grid.Row="5" Grid.Column="0" Width="80" Height="25" Content="测试连接" Margin="5,0,0,0" Command="{Binding TestConnectCommand}"></Button>
-            <Button Grid.Row="5" Grid.Column="1" Width="80" Height="25" Content="确定" Margin="5,0,0,0"></Button>
-            <Button Grid.Row="5" Grid.Column="2" Width="80" Height="25" Content="取消" Margin="5,0,0,0"></Button>
+            <Button Grid.Row="5" Grid.Column="1" Width="80" Height="25" Content="确定" Margin="5,0,0,0" Command="{Binding ConfirmCommand}"></Button>
+            <Button Grid.Row="5" Grid.Column="2" Width="80" Height="25" Content="取消" Margin="5,0,0,0" Command="{Binding CancelCommand}"/>
         </StackPanel>
     </Grid>
 </Window>

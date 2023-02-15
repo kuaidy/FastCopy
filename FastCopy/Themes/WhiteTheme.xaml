@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style TargetType="DataGridCell">
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#CDE8FF"></Setter>
+                <Setter Property="BorderBrush" Value="#CDE8FF"></Setter>
+                <Setter Property="Foreground" Value="Black"></Setter>
+            </Trigger>
+        </Style.Triggers>
+        <Setter Property="Height" Value="30"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
+    </Style>
+</ResourceDictionary>

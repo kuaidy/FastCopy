@@ -20,8 +20,7 @@ namespace FastCopy.DataBase
                 {
                     FastCopyDbContext = new FastCopyDbContext();
                 }
-                //FastCopyDbContext.Database.EnsureCreated();
-                FastCopyDbContext.Database.Migrate();
+                FastCopyDbContext.Database.EnsureCreated();
             }
             catch (Exception ex) 
             {

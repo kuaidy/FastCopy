@@ -4,6 +4,7 @@ using FastCopy.Net;
 using FastCopy.ViewModels;
 using FastCopy.Views;
 using Hardcodet.Wpf.TaskbarNotification;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -22,18 +23,22 @@ namespace CopyFast
         private TaskbarIcon _taskbar;
         public App()
         {
-            
+
         }
         protected override void OnStartup(StartupEventArgs e)
         {
-            _taskbar =(TaskbarIcon)FindResource("Taskbar");
-            SqliteHelper.Init();
-            ConfigHelper.Init();
-            UpdateHelper.Init();
-            TcpService.Listen();
-            FastCopyView fastCopyView = new FastCopyView();
-            FastCopyViewModel fastCopyViewModel = new FastCopyViewModel(fastCopyView);
+            _taskbar = (TaskbarIcon)FindResource("Taskbar");
+            //SqliteHelper.Init();
+            //ConfigHelper.Init();
+            //注册服务
+            ServiceHelper.Init();
+            FastCopyViewModel fastCopyViewModel = ServiceHelper.ServiceProvider.GetService<FastCopyViewModel>();
+            FastCopyView fastCopyView = ServiceHelper.ServiceProvider.GetService<FastCopyView>();
+            fastCopyViewModel.FastCopyView = fastCopyView;
+            //FastCopyViewModel fastCopyViewModel = new FastCopyViewModel(fastCopyView);
             fastCopyView.DataContext = fastCopyViewModel;
+            fastCopyView.Closed += fastCopyViewModel.FastCopyView_Closed;
+            fastCopyView.Deactivated += fastCopyViewModel.FastCopyView_Closed;
             fastCopyView.Show();
             base.OnStartup(e);
         }

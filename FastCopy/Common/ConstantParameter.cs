@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -51,5 +52,20 @@ namespace FastCopy.Common
         public const string NormalSet= "常规配置";
         public const string OpenFileSet = "文件打开配置";
         #endregion
+
+        public static int NoticeCount=0;
+
+        public const int QueueNoticeWindowsCount = 5;
+
+        public static Queue QueueNoticeWindows = new Queue();
+    }
+    /// <summary>
+    /// 三角形类型
+    /// </summary>
+    public enum TriangleType
+    {
+        NotFill,
+        Fill,
+        None
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FastCopy.Common;
+using FastCopy.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastCopy.Views
 {
@@ -21,13 +23,15 @@ namespace FastCopy.Views
     /// </summary>
     public partial class FastCopyView : Window
     {
+        private IConfigService m_ConfigService;
         public FastCopyView()
         {
             InitializeComponent();
+            m_ConfigService = ServiceHelper.ServiceProvider.GetService<IConfigService>();
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (ConfigHelper.IsCloseToTaskBar)
+            if (m_ConfigService.IsCloseToTaskBar)
             {
                 this.Hide();
                 e.Cancel = true;

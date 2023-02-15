@@ -10,6 +10,9 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="log\LogService.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\FtpView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -21,6 +24,15 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Themes\DarkTheme.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Themes\Generic.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Themes\WhiteTheme.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\FastCopyView.xaml">
       <SubType>Designer</SubType>
     </Page>

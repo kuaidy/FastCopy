@@ -1,6 +1,7 @@
 ﻿using FastCopy.Basic;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,9 @@ namespace FastCopy.Models
 {
     public class FtpInfoModel: NotifactionObject
     {
+        public int Id { get; set; }
+        public string Guid { get; set; }
+        public string CopyInfoId { get; set; }
         /// <summary>
         /// 服务器
         /// </summary>
@@ -84,6 +88,21 @@ namespace FastCopy.Models
             set
             {
                 m_Password = value;
+            }
+        }
+        /// <summary>
+        /// 被动模式
+        /// </summary>
+        private bool m_IsPassiveMode = false;
+        public bool IsPassiveMode
+        {
+            get
+            {
+                return m_IsPassiveMode;
+            }
+            set
+            {
+                m_IsPassiveMode = value;
             }
         }
     }

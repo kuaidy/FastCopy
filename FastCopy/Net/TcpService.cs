@@ -1,5 +1,8 @@
-﻿using System;
+﻿using FastCopy.log;
+using FastCopy.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -11,13 +14,24 @@ using System.Windows;
 
 namespace FastCopy.Net
 {
-    public class TcpService
+    public class TcpService : ITcpService
     {
-        static TcpListener TcpListener;
-        public static void Listen()
+        private readonly ILogService m_LogService;
+
+        public ObservableCollection<CopyInfoModel> CopyInfos { get; set; }
+
+
+
+        public TcpService(ILogService logService)
+        {
+            m_LogService = logService;
+        }
+
+        public void Listen()
         {
             Task.Run(() =>
             {
+                TcpListener TcpListener = null;
                 try
                 {
                     IPAddress ip = Dns.GetHostAddresses(Dns.GetHostName()).Where(ip => ip.AddressFamily == AddressFamily.InterNetwork).First();
@@ -26,44 +40,85 @@ namespace FastCopy.Net
                     string data;
                     TcpListener = new TcpListener(ip, port);
                     TcpListener.Start();
+                    byte[] buffer = new byte[512];
 
-                    Thread tReceiveMsg = new Thread(ReceiveFile);
-                    tReceiveMsg.Start();
-                    tReceiveMsg.IsBackground = true;
+                    //Thread tReceiveMsg = new Thread(ReceiveFile);
+                    //tReceiveMsg.Start();
+                    //tReceiveMsg.IsBackground = true;
+
+                    Task.Run(() =>
+                    {
+                        AcceptMessage(TcpListener);
+                    });
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.ToString());
                 }
+                finally
+                {
+                    //TcpListener.Stop();
+                }
             });
+        }
+
+        public void AcceptMessage(TcpListener tcpListener)
+        {
+            string data = string.Empty;
+            while (true)
+            {
+                TcpClient tcpClient = tcpListener.AcceptTcpClient();
+                if (tcpClient.Connected)
+                {
+                    int i;
+                    byte[] buffer = new byte[512];
+                    NetworkStream networkStream = tcpClient.GetStream();
+                    i = networkStream.Read(buffer, 0, buffer.Length);
+                    data = Encoding.ASCII.GetString(buffer, 0, i);
+                    if (!string.IsNullOrEmpty(data)) 
+                    {
+                        System.Windows.Application.Current.Dispatcher.Invoke(()=> {
+                            CopyInfoModel copyInfoModel = new CopyInfoModel();
+                            copyInfoModel.SourceAddress = data;
+                            copyInfoModel.Status = "是否接收？";
+                            if (CopyInfos != null)
+                            {
+                                CopyInfos.Add(copyInfoModel);
+                            }
+                        });
+                        
+                    }
+                    tcpClient.Close();
+                }
+
+            }
         }
         /// <summary>
         /// 接收文件
         /// </summary>
-        private static async void ReceiveFile()
+        private static void ReceiveFile()
         {
-            byte[] buffer = new byte[512];
-            int count = 0;
             try
             {
-                TcpClient tcpClient = await TcpListener.AcceptTcpClientAsync();
-                if (tcpClient.Connected)
-                {
-                    NetworkStream networkStream = tcpClient.GetStream();
-                    if (networkStream != null)
-                    {
-                        FileStream fs = new FileStream("E:\\test.txt", FileMode.Create, FileAccess.Write);
-                        while ((count = networkStream.Read(buffer, 0, buffer.Length)) != 0)
-                        {
-                            fs.Write(buffer, 0, count);
-                        }
-                        fs.Flush();
-                        networkStream.Flush();
-                        networkStream.Close();
-                        tcpClient.Close();
-                    }
-                }
-
+                //byte[] buffer = new byte[512];
+                //int count = 0;
+                //TcpClient tcpClient = TcpListener.AcceptTcpClient();
+                //if (tcpClient.Connected)
+                //{
+                //    NetworkStream networkStream = tcpClient.GetStream();
+                //    if (networkStream != null)
+                //    {
+                //        FileStream fs = new FileStream("E:\\test.txt", FileMode.Create, FileAccess.Write);
+                //        while ((count = networkStream.Read(buffer, 0, buffer.Length)) != 0)
+                //        {
+                //            fs.Write(buffer, 0, count);
+                //        }
+                //        fs.Flush();
+                //        networkStream.Flush();
+                //        networkStream.Close();
+                //        tcpClient.Close();
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -73,10 +128,10 @@ namespace FastCopy.Net
         /// <summary>
         /// 发送消息
         /// </summary>
-        public static void SendMessage(string message, string ip, string port)
+        public void SendMessage(string message, string ip, int port)
         {
             TcpClient tcpClient = new TcpClient();
-            tcpClient.Connect(IPAddress.Parse(ip), int.Parse(port));
+            tcpClient.Connect(IPAddress.Parse(ip), port);
             NetworkStream networkStream = tcpClient.GetStream();
             byte[] byteMess = Encoding.UTF8.GetBytes(message);
 
@@ -84,11 +139,11 @@ namespace FastCopy.Net
             while (length < byteMess.Length)
             {
                 byte[] buffer = new byte[512];
-                if (byteMess.Length < buffer.Length) 
+                if (byteMess.Length < buffer.Length)
                 {
                     networkStream.Write(byteMess, 0, byteMess.Length);
                 }
-                else 
+                else
                 {
                     networkStream.Write(byteMess, 0, buffer.Length);
                 }
@@ -98,7 +153,7 @@ namespace FastCopy.Net
         /// <summary>
         /// 发送文件
         /// </summary>
-        public static void SendFile(string fileName, string ip, string port)
+        public void SendFile(string fileName, string ip, string port)
         {
             TcpClient tcpClient = new TcpClient();
             tcpClient.Connect(IPAddress.Parse(ip), int.Parse(port));

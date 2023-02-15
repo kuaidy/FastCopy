@@ -39,20 +39,19 @@ namespace FastCopy.ViewModels
         private void GetNoticeShowInfo()
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append("复制成功：");
+            stringBuilder.Append("复制成功：\r\n");
             foreach (CopyInfoModel copyInfoModel in SuccCopyInfos)
             {
                 string fileName = Path.GetFileName(copyInfoModel.SourceAddress);
                 stringBuilder.Append(fileName);
-                stringBuilder.Append(',');
+                stringBuilder.Append("\r\n");
             }
-            stringBuilder.Append("\r\n");
-            stringBuilder.Append("复制失败：");
+            stringBuilder.Append("复制失败：\r\n");
             foreach (CopyInfoModel copyInfoModel in FailCopyInfos)
             {
                 string fileName = Path.GetFileName(copyInfoModel.SourceAddress);
                 stringBuilder.Append(fileName);
-                stringBuilder.Append(',');
+                stringBuilder.Append("\r\n");
             }
             NoticeInfo = stringBuilder.ToString();
         }

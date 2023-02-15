@@ -11,11 +11,16 @@ using System.IO;
 using FastCopy.Common;
 using FastCopy.DataBase;
 using System.Collections.ObjectModel;
+using FastCopy.Config;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastCopy.ViewModels
 {
     public class SettingViewModel : NotifactionObject
     {
+        private readonly FastCopyDbContext m_FastCopyDbContext;
+        private readonly IConfigService m_ConfigService;
+
         private SetModel m_SetModel = new SetModel();
         public SetModel SetModel
         {
@@ -73,7 +78,7 @@ namespace FastCopy.ViewModels
             set
             {
                 m_IsCloseToTaskBar = value;
-                ConfigHelper.IsCloseToTaskBar = value;
+                m_ConfigService.IsCloseToTaskBar = value;
                 SetSetData("IsCloseToTaskBar", "关闭时最小化到任务栏",value?"1":"0", ConstantParameter.NormalSet);
                 this.RaisePropertyChange("IsCloseToTaskBar");
             }
@@ -91,7 +96,7 @@ namespace FastCopy.ViewModels
             set
             {
                 m_IsAutoUpdate = value;
-                ConfigHelper.IsAutoUpdate = value;
+                m_ConfigService.IsAutoUpdate = value;
                 SetSetData("IsAutoUpdate", "启动检查更新", value ? "1" : "0", ConstantParameter.NormalSet);
                 this.RaisePropertyChange("IsAutoUpdate");
             }
@@ -109,7 +114,7 @@ namespace FastCopy.ViewModels
             set
             {
                 m_IsAutoStart = value;
-                ConfigHelper.IsAutoStart = value;
+                m_ConfigService.IsAutoStart = value;
                 SetSetData("IsAutoStart", "开机自启动", value ? "1" : "0", ConstantParameter.NormalSet);
                 SetAutoStart(value);
                 this.RaisePropertyChange("IsAutoStart");
@@ -128,7 +133,7 @@ namespace FastCopy.ViewModels
             set
             {
                 m_IsCopyNewFile = value;
-                ConfigHelper.IsCopyNewFile = value;
+                m_ConfigService.IsCopyNewFile = value;
                 SetSetData("IsCopyNewFile", "只复制文件时间最新的文件", value ? "1" : "0", ConstantParameter.NormalSet);
                 this.RaisePropertyChange("IsCopyNewFile");
             }
@@ -146,7 +151,7 @@ namespace FastCopy.ViewModels
             set
             {
                 m_IsSaveModes = value;
-                ConfigHelper.IsSaveModes = value;
+                m_ConfigService.IsSaveModes = value;
                 SetSetData("IsSaveModes", "关闭软件保存当前模式", value ? "1" : "0", ConstantParameter.NormalSet);
                 this.RaisePropertyChange("IsSaveModes");
             }
@@ -172,7 +177,14 @@ namespace FastCopy.ViewModels
         {
             SettingView = settingView;
             settingView.Closed += SettingView_Closed;
+            m_FastCopyDbContext = ServiceHelper.ServiceProvider.GetService<FastCopyDbContext>();
+            m_ConfigService = ServiceHelper.ServiceProvider.GetService<IConfigService>();
             InitData();
+        }
+
+        public SettingViewModel(FastCopyDbContext fastCopyDbContext,IConfigService configService)
+        {
+            
         }
 
         private void SettingView_Closed(object sender, EventArgs e)
@@ -189,7 +201,7 @@ namespace FastCopy.ViewModels
         private void GetSetData()
         {
             //常规配置
-            DetailSetModels = SqliteHelper.FastCopyDbContext.DetailSetModels.Where(x=>x.Type== ConstantParameter.NormalSet).ToList();
+            DetailSetModels = m_FastCopyDbContext.DetailSetModels.Where(x=>x.Type== ConstantParameter.NormalSet).ToList();
             foreach (DetailSetModel detailSetModel in DetailSetModels)
             {
                 switch (detailSetModel.EName)
@@ -222,7 +234,7 @@ namespace FastCopy.ViewModels
                 }
             }
             //文件打开配置
-            var items= SqliteHelper.FastCopyDbContext.DetailSetModels.Where(x => x.Type == ConstantParameter.OpenFileSet).ToList();
+            var items= m_FastCopyDbContext.DetailSetModels.Where(x => x.Type == ConstantParameter.OpenFileSet).ToList();
             foreach(var item in items) 
             {
                 OpenFileSetInfos.Add(item);
@@ -255,7 +267,7 @@ namespace FastCopy.ViewModels
                 detailSet.Value = value;
                 detailSet.Type = type;
                 DetailSetModels.Add(detailSet);
-                SqliteHelper.FastCopyDbContext.DetailSetModels.Add(detailSet);
+                m_FastCopyDbContext.DetailSetModels.Add(detailSet);
             }
         }
         /// <summary>
@@ -268,31 +280,31 @@ namespace FastCopy.ViewModels
                 //常规配置
                 foreach (DetailSetModel detailSet in DetailSetModels)
                 {
-                    DetailSetModel detailSetModel= SqliteHelper.FastCopyDbContext.DetailSetModels.ToList().Find(x => x.EName == detailSet.EName);
+                    DetailSetModel detailSetModel= m_FastCopyDbContext.DetailSetModels.ToList().Find(x => x.EName == detailSet.EName);
                     if (detailSetModel != null)
                     {
-                        SqliteHelper.FastCopyDbContext.DetailSetModels.Update(detailSet);
+                        m_FastCopyDbContext.DetailSetModels.Update(detailSet);
                     }
                     else
                     {
-                        SqliteHelper.FastCopyDbContext.DetailSetModels.Add(detailSet);
+                        m_FastCopyDbContext.DetailSetModels.Add(detailSet);
                     }
                 }
                 //文件打开配置
                 foreach (DetailSetModel item in OpenFileSetInfos) 
                 {
-                    DetailSetModel detailSetModel = SqliteHelper.FastCopyDbContext.DetailSetModels.ToList().Find(x=>x.Id==item.Id);
+                    DetailSetModel detailSetModel = m_FastCopyDbContext.DetailSetModels.ToList().Find(x=>x.Id==item.Id);
                     if (detailSetModel != null)
                     {
-                        SqliteHelper.FastCopyDbContext.DetailSetModels.Update(item);
+                        m_FastCopyDbContext.DetailSetModels.Update(item);
                     }
                     else
                     {
                         item.Type = ConstantParameter.OpenFileSet;
-                        SqliteHelper.FastCopyDbContext.DetailSetModels.Add(item);
+                        m_FastCopyDbContext.DetailSetModels.Add(item);
                     }
                 }
-                SqliteHelper.FastCopyDbContext.SaveChanges();
+                m_FastCopyDbContext.SaveChanges();
             }
             catch(Exception ex)
             {

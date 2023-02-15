@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>fastcopy.ico</ApplicationIcon>
   </PropertyGroup>
@@ -16,19 +16,27 @@
 
   <ItemGroup>
     <None Remove="Images\add.png" />
+    <None Remove="Images\addchild.png" />
     <None Remove="Images\bak.png" />
     <None Remove="Images\clock.png" />
+    <None Remove="Images\close.png" />
     <None Remove="Images\copy.png" />
     <None Remove="Images\delete.png" />
     <None Remove="Images\edit.png" />
+    <None Remove="Images\export.png" />
     <None Remove="Images\fastcopy.ico" />
     <None Remove="Images\folder.png" />
+    <None Remove="Images\import.png" />
     <None Remove="Images\newfile.png" />
     <None Remove="Images\open.png" />
+    <None Remove="Images\pack.png" />
     <None Remove="Images\pause.png" />
     <None Remove="Images\play.png" />
     <None Remove="Images\stop.png" />
     <None Remove="Images\sync.png" />
+    <None Remove="Images\text.png" />
+    <None Remove="Images\text1.png" />
+    <None Remove="Images\triangle.png" />
     <None Remove="Microsoft.Practices.Prism.dll" />
     <None Remove="Microsoft.Practices.Unity.dll" />
     <None Remove="PresentationFramework.dll" />
@@ -58,24 +66,33 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Images\add.png" />
+    <Resource Include="Images\addchild.png" />
     <Resource Include="Images\bak.png" />
     <Resource Include="Images\clock.png" />
+    <Resource Include="Images\close.png" />
     <Resource Include="Images\copy.png" />
     <Resource Include="Images\delete.png" />
     <Resource Include="Images\edit.png" />
+    <Resource Include="Images\export.png" />
     <Resource Include="Images\fastcopy.ico" />
     <Resource Include="Images\folder.png" />
+    <Resource Include="Images\import.png" />
     <Resource Include="Images\newfile.png" />
     <Resource Include="Images\open.png" />
+    <Resource Include="Images\pack.png" />
     <Resource Include="Images\pause.png" />
     <Resource Include="Images\play.png" />
     <Resource Include="Images\stop.png" />
     <Resource Include="Images\sync.png" />
+    <Resource Include="Images\text.png" />
+    <Resource Include="Images\text1.png" />
+    <Resource Include="Images\triangle.png" />
   </ItemGroup>
 
   <ItemGroup>

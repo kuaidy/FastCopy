@@ -9,3 +9,7 @@ add-migration name
 ```
 update-database
 ```
+
+数据库事务acid
+数据库索引
+数据库存储过程：一系列的sql，存储到数据库
