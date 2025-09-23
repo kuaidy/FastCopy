@@ -392,7 +392,7 @@ namespace FastCopy.ViewModels
                     copyInfoModel.GridMargin = currentItem.GridMargin;
                 }
                 //CopyInfos.Add(copyInfoModel);
-                if (CurrentIndex >= 0)
+                if (CurrentIndex > 0)
                 {
                     CopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
                     ShowCopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
@@ -1193,7 +1193,7 @@ namespace FastCopy.ViewModels
             try
             {
                 AllCopyInfos = m_FastCopyDbContext.CopyInfos.ToList();
-                List<CopyInfoModel> copyInfoModels = m_FastCopyDbContext.CopyInfos.Where(x => x.ParentId == null || string.IsNullOrEmpty(x.ParentId)).OrderBy(x => x.Sort).ToList();
+                List<CopyInfoModel> copyInfoModels = m_FastCopyDbContext.CopyInfos.AsQueryable().Where(x => x.ParentId == null || string.IsNullOrEmpty(x.ParentId)).OrderBy(x => x.Sort).ToList();
                 foreach (CopyInfoModel copyInfoModel in copyInfoModels)
                 {
                     string fileExt = Path.GetExtension(copyInfoModel.SourceAddress).TrimStart('.');
