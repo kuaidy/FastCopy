@@ -5,6 +5,7 @@ using FastCopy.Net;
 using FastCopy.ViewModels;
 using FastCopy.Views;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,8 @@ namespace FastCopy.Common
             services.AddScoped<ITcpService, TcpService>();
             services.AddScoped<IConfigService, ConfigService>();
             services.AddScoped<FastCopyDbContext>();
-
+            //日志服务
+            services.AddLogging();
             #region 界面相关
             services.AddScoped<FastCopyView>();
             services.AddScoped<FastCopyViewModel>();
@@ -32,6 +34,8 @@ namespace FastCopy.Common
             services.AddScoped<SettingViewModel>();
             services.AddScoped<FtpView>();
             services.AddScoped<FtpViewModel>();
+            services.AddScoped<CompareView>();
+            services.AddScoped<CompareViewModel>();
             ServiceProvider = services.BuildServiceProvider();
             #endregion 界面相关
             return services;

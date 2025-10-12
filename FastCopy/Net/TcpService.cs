@@ -19,14 +19,10 @@ namespace FastCopy.Net
         private readonly ILogService m_LogService;
 
         public ObservableCollection<CopyInfoModel> CopyInfos { get; set; }
-
-
-
         public TcpService(ILogService logService)
         {
             m_LogService = logService;
         }
-
         public void Listen()
         {
             Task.Run(() =>
@@ -61,7 +57,6 @@ namespace FastCopy.Net
                 }
             });
         }
-
         public void AcceptMessage(TcpListener tcpListener)
         {
             string data = string.Empty;
@@ -80,7 +75,7 @@ namespace FastCopy.Net
                         System.Windows.Application.Current.Dispatcher.Invoke(()=> {
                             CopyInfoModel copyInfoModel = new CopyInfoModel();
                             copyInfoModel.SourceAddress = data;
-                            copyInfoModel.Status = "是否接收？";
+                            copyInfoModel.Result = "是否接收？";
                             if (CopyInfos != null)
                             {
                                 CopyInfos.Add(copyInfoModel);

@@ -45,7 +45,7 @@ namespace FastCopy.Controls
             switch (DrawType)
             {
                 case TriangleType.Fill:
-                    drawingContext.DrawGeometry(new LinearGradientBrush(TriangleColor, TriangleColor, 0), new Pen(new SolidColorBrush(TriangleColor), 1.000), DrawTriangle());
+                    drawingContext.DrawGeometry(new SolidColorBrush(Colors.Transparent), new Pen(new SolidColorBrush(TriangleColor), 1.000), DrawTriangle());
                     break;
                 case TriangleType.NotFill:
                     drawingContext.DrawGeometry(new SolidColorBrush(Colors.Transparent), new Pen(new SolidColorBrush(TriangleColor), 1.000), DrawTriangle());
@@ -86,15 +86,23 @@ namespace FastCopy.Controls
         private StreamGeometry DrawFillTriangle()
         {
             StreamGeometry streamGeometry = new StreamGeometry();
-            var point0 = new Point(0, this.ActualHeight);
-            var point1 = new Point(this.ActualWidth / 3 * 2, this.ActualHeight);
-            var point2 = new Point(this.ActualWidth / 3 * 2, this.ActualHeight / 3);
+            var point0 = new Point(0, 0);
+            var point1 = new Point(this.ActualWidth, 0);
+            var point2 = new Point(this.ActualWidth, this.ActualHeight);
+            var point3 = new Point(0, this.ActualHeight);
+            var point4 = new Point(this.ActualWidth / 2, 0 + 2);
+            var point5 = new Point(this.ActualWidth - 2, this.ActualHeight / 2);
+            var point6 = new Point(this.ActualWidth - 2, this.ActualHeight - 2);
+            var point7 = new Point(0 + 2, this.ActualHeight / 2);
             using (StreamGeometryContext streamGeometryContext = streamGeometry.Open())
             {
                 streamGeometryContext.BeginFigure(point0, true, false);
                 streamGeometryContext.LineTo(point1, true, true);
                 streamGeometryContext.LineTo(point2, true, true);
+                streamGeometryContext.LineTo(point3, true, true);
                 streamGeometryContext.LineTo(point0, true, true);
+                streamGeometryContext.BeginFigure(point5, true, false);
+                streamGeometryContext.LineTo(point7, true, false);
             }
             return streamGeometry;
         }
@@ -102,14 +110,24 @@ namespace FastCopy.Controls
         {
             StreamGeometry streamGeometry = new StreamGeometry();
             var point0 = new Point(0, 0);
-            var point1 = new Point(this.ActualWidth / 2, this.ActualHeight / 2);
-            var point2 = new Point(0, this.ActualHeight);
+            var point1 = new Point(this.ActualWidth, 0);
+            var point2 = new Point(this.ActualWidth, this.ActualHeight);
+            var point3 = new Point(0, this.ActualHeight);
+            var point4 = new Point(this.ActualWidth / 2, 0 + 2);
+            var point5 = new Point(this.ActualWidth - 2, this.ActualHeight / 2);
+            var point6 = new Point(this.ActualWidth / 2, this.ActualHeight - 2);
+            var point7 = new Point(0 + 2, this.ActualHeight / 2);
             using (StreamGeometryContext streamGeometryContext = streamGeometry.Open())
             {
                 streamGeometryContext.BeginFigure(point0, true, false);
                 streamGeometryContext.LineTo(point1, true, true);
                 streamGeometryContext.LineTo(point2, true, true);
+                streamGeometryContext.LineTo(point3, true, true);
                 streamGeometryContext.LineTo(point0, true, true);
+                streamGeometryContext.BeginFigure(point4, true, false);
+                streamGeometryContext.LineTo(point6, true, false);
+                streamGeometryContext.BeginFigure(point5, true, false);
+                streamGeometryContext.LineTo(point7, true, false);
             }
             return streamGeometry;
         }

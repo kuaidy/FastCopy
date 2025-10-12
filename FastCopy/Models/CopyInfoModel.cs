@@ -1,6 +1,7 @@
 ﻿using FastCopy.Basic;
 using FastCopy.Common;
 using FastCopy.DataBase;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -55,6 +57,22 @@ namespace FastCopy.Models
             }
         }
         /// <summary>
+        /// 修改时间
+        /// </summary>
+        private DateTime? m_ModifyDateTime;
+        public DateTime? ModifyDateTime
+        {
+            get
+            {
+                return m_ModifyDateTime;
+            }
+            set
+            {
+                m_ModifyDateTime=value;
+                this.RaisePropertyChange("ModifyDateTime");
+            }
+        }
+        /// <summary>
         /// 目标地址
         /// </summary>
         private string m_TargetAddress;
@@ -89,17 +107,17 @@ namespace FastCopy.Models
         /// <summary>
         /// 结果
         /// </summary>
-        private string m_Status;
-        public string Status
+        private string m_Result;
+        public string Result
         {
             get
             {
-                return m_Status;
+                return m_Result;
             }
             set
             {
-                m_Status = value;
-                this.RaisePropertyChange("Status");
+                m_Result = value;
+                this.RaisePropertyChange("Result");
             }
         }
         /// <summary>
@@ -166,8 +184,40 @@ namespace FastCopy.Models
                 this.RaisePropertyChange("Remark");
             }
         }
+        /// <summary>
+        /// 置顶
+        /// </summary>
+        private bool? m_IsTop=false;
+        public bool? IsTop
+        {
+            get
+            {
+                return m_IsTop;
+            }
+            set
+            {
+                m_IsTop = value;
+                this.RaisePropertyChange("IsTop");
+            }
+        }
+        private Visibility m_TopVisible=Visibility.Collapsed;
+        [NotMapped]
+        [JsonIgnore]
+        public Visibility TopVisible
+        {
+            get
+            {
+                return m_TopVisible;
+            }
+            set
+            {
+                m_TopVisible = value;
+                this.RaisePropertyChange("TopVisible");
+            }
+        }
         private List<CopyInfoModel> m_Children=new List<CopyInfoModel>();
         [NotMapped]
+        [JsonIgnore]
         public List<CopyInfoModel> Children
         {
             get
@@ -185,6 +235,7 @@ namespace FastCopy.Models
         /// </summary>
         private BitmapImage m_ExeIcon;
         [NotMapped]
+        [JsonIgnore]
         public BitmapImage ExeIcon
         {
             get
@@ -201,6 +252,7 @@ namespace FastCopy.Models
         /// </summary>
         private int m_ProgressMaxNum=100;
         [NotMapped]
+        [JsonIgnore]
         public int ProgressMaxNum
         {
             get
@@ -218,6 +270,7 @@ namespace FastCopy.Models
         /// </summary>
         private int m_ProgressValue=0;
         [NotMapped]
+        [JsonIgnore]
         public int ProgressValue
         {
             get
@@ -235,6 +288,7 @@ namespace FastCopy.Models
         /// </summary>
         private SolidColorBrush m_BackGroundColor;
         [NotMapped]
+        [JsonIgnore]
         public SolidColorBrush BackGroundColor
         {
             get
@@ -252,6 +306,7 @@ namespace FastCopy.Models
         /// </summary>
         private Thickness m_GridMargin;
         [NotMapped]
+        [JsonIgnore]
         public Thickness GridMargin
         {
             get
@@ -265,10 +320,11 @@ namespace FastCopy.Models
             }
         }
         /// <summary>
-        /// 三角形类型
+        /// 展开状态类型
         /// </summary>
         private TriangleType m_TriangleType = TriangleType.NotFill;
         [NotMapped]
+        [JsonIgnore]
         public TriangleType TriangleType
         {
             get
@@ -283,6 +339,7 @@ namespace FastCopy.Models
         }
         private Visibility m_IsVisible = Visibility.Visible;
         [NotMapped]
+        [JsonIgnore]
         public Visibility IsVisible
         {
             get
@@ -300,6 +357,7 @@ namespace FastCopy.Models
         /// </summary>
         private Visibility m_IsPauseVisible = Visibility.Collapsed;
         [NotMapped]
+        [JsonIgnore]
         public Visibility IsPauseVisible
         {
             get
@@ -313,12 +371,85 @@ namespace FastCopy.Models
             }
         }
         [NotMapped]
+        [JsonIgnore]
         public Task CopyTask { get; set; }
         [NotMapped]
+        [JsonIgnore]
         public CancellationTokenSource CancellationTokenSource { get; set; }
         [NotMapped]
+        [JsonIgnore]
         public ManualResetEvent ManualResetEvent { get; set; }
         [NotMapped]
+        [JsonIgnore]
         public bool IsCopyPaused = false;
+        private int? m_TodoStatus = -1;
+        public int? TodoStatus
+        {
+            get
+            {
+                return m_TodoStatus;
+            }
+            set
+            {
+                m_TodoStatus = value;
+                this.RaisePropertyChange("TodoStatus");
+            }
+        }
+        [NotMapped]
+        /// <summary>
+        /// 执行程序图标
+        /// </summary>
+        private BitmapImage m_TodoIcon;
+        [NotMapped]
+        [JsonIgnore]
+        public BitmapImage TodoIcon
+        {
+            get
+            {
+                return m_TodoIcon;
+            }
+            set
+            {
+                m_TodoIcon = value;
+                this.RaisePropertyChange("TodoIcon");
+            }
+        }
+        private Visibility m_TodoStatusVisible = Visibility.Collapsed;
+        [NotMapped]
+        [JsonIgnore]
+        public Visibility TodoStatusVisible
+        {
+            get
+            {
+                return m_TodoStatusVisible;
+            }
+            set
+            {
+                m_TodoStatusVisible = value;
+                this.RaisePropertyChange("TodoStatusVisible");
+            }
+        }
+        public CopyInfoModel Clone()
+        {
+            CopyInfoModel copyInfo = new CopyInfoModel();
+            copyInfo.Guid = System.Guid.NewGuid().ToString();
+            copyInfo.SourceAddress = SourceAddress;
+            copyInfo.TargetAddress = TargetAddress;
+            copyInfo.IsChecked= IsChecked;
+            copyInfo.ParentId = ParentId;
+            copyInfo.Remark = Remark;
+            copyInfo.IsTop = IsTop;
+            copyInfo.TopVisible = TopVisible;
+            copyInfo.Children = Children;
+            copyInfo.ExeIcon= ExeIcon;
+            copyInfo.GridMargin = GridMargin;
+            copyInfo.TriangleType = TriangleType;
+            copyInfo.IsVisible = IsVisible;
+            copyInfo.IsPauseVisible = IsPauseVisible;
+            copyInfo.TodoStatus= TodoStatus;
+            copyInfo.TodoIcon= TodoIcon;
+            copyInfo.TodoStatusVisible= TodoStatusVisible;
+            return copyInfo;
+        }
     }
 }

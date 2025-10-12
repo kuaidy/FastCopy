@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>fastcopy.ico</ApplicationIcon>
   </PropertyGroup>
@@ -18,13 +18,17 @@
     <None Remove="Images\add.png" />
     <None Remove="Images\addchild.png" />
     <None Remove="Images\bak.png" />
+    <None Remove="Images\cancel.png" />
     <None Remove="Images\clock.png" />
     <None Remove="Images\close.png" />
+    <None Remove="Images\compare.png" />
     <None Remove="Images\copy.png" />
     <None Remove="Images\delete.png" />
+    <None Remove="Images\deletefiles.png" />
     <None Remove="Images\edit.png" />
     <None Remove="Images\export.png" />
     <None Remove="Images\fastcopy.ico" />
+    <None Remove="Images\finish.png" />
     <None Remove="Images\folder.png" />
     <None Remove="Images\import.png" />
     <None Remove="Images\newfile.png" />
@@ -32,10 +36,13 @@
     <None Remove="Images\pack.png" />
     <None Remove="Images\pause.png" />
     <None Remove="Images\play.png" />
+    <None Remove="Images\progress.png" />
+    <None Remove="Images\refresh.png" />
     <None Remove="Images\stop.png" />
     <None Remove="Images\sync.png" />
     <None Remove="Images\text.png" />
     <None Remove="Images\text1.png" />
+    <None Remove="Images\top.png" />
     <None Remove="Images\triangle.png" />
     <None Remove="Microsoft.Practices.Prism.dll" />
     <None Remove="Microsoft.Practices.Unity.dll" />
@@ -58,6 +65,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="fastcopy.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.9" />
@@ -66,7 +77,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
 
@@ -74,13 +87,17 @@
     <Resource Include="Images\add.png" />
     <Resource Include="Images\addchild.png" />
     <Resource Include="Images\bak.png" />
+    <Resource Include="Images\cancel.png" />
     <Resource Include="Images\clock.png" />
     <Resource Include="Images\close.png" />
+    <Resource Include="Images\compare.png" />
     <Resource Include="Images\copy.png" />
     <Resource Include="Images\delete.png" />
+    <Resource Include="Images\deletefiles.png" />
     <Resource Include="Images\edit.png" />
     <Resource Include="Images\export.png" />
     <Resource Include="Images\fastcopy.ico" />
+    <Resource Include="Images\finish.png" />
     <Resource Include="Images\folder.png" />
     <Resource Include="Images\import.png" />
     <Resource Include="Images\newfile.png" />
@@ -88,10 +105,13 @@
     <Resource Include="Images\pack.png" />
     <Resource Include="Images\pause.png" />
     <Resource Include="Images\play.png" />
+    <Resource Include="Images\progress.png" />
+    <Resource Include="Images\refresh.png" />
     <Resource Include="Images\stop.png" />
     <Resource Include="Images\sync.png" />
     <Resource Include="Images\text.png" />
     <Resource Include="Images\text1.png" />
+    <Resource Include="Images\top.png" />
     <Resource Include="Images\triangle.png" />
   </ItemGroup>
 

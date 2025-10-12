@@ -260,7 +260,6 @@ namespace FastCopy.ViewModels
                 m_DetailSetModels = value;
             }
         }
-
         /// <summary>
         /// 检索内容
         /// </summary>
@@ -278,7 +277,45 @@ namespace FastCopy.ViewModels
                 this.RaisePropertyChange("SearchText");
             }
         }
-
+        private bool m_AutoCheck = false;
+        private BitmapImage m_TodoIcon = new BitmapImage(new Uri("../Images/progress.png", UriKind.RelativeOrAbsolute));
+        public BitmapImage TodoIcon
+        {
+            get
+            {
+                return m_TodoIcon;
+            }
+            set
+            {
+                m_TodoIcon = value;
+                this.RaisePropertyChange("TodoIcon");
+            }
+        }
+        private string m_TodoStatus = "开始";
+        public string TodoStatus
+        {
+            get
+            {
+                return m_TodoStatus;
+            }
+            set
+            {
+                m_TodoStatus = value;
+                this.RaisePropertyChange("TodoStatus");
+            }
+        }
+        private CopyInfoModel m_CopyInfoForCopy;
+        public CopyInfoModel CopyInfoForCopy
+        {
+            get
+            {
+                return m_CopyInfoForCopy;
+            }
+            set
+            {
+                m_CopyInfoForCopy = value;
+            }
+        }
         #endregion 属性
         #region 命令
         public ICommand AddCommand
@@ -286,6 +323,8 @@ namespace FastCopy.ViewModels
             get; set;
         }
         public ICommand AddChildCommand { get; set; }
+        public ICommand RefreshCommand { get; set; }
+
         public ICommand CopyCommand
         {
             get; set;
@@ -318,6 +357,14 @@ namespace FastCopy.ViewModels
         public ICommand PackCommand { get; set; }
         public ICommand TaskPauseCommand { get; set; }
         public ICommand TaskCancelCommand { get; set; }
+        public ICommand DeleteFilesCommand { get; set; }
+        public ICommand TopCommand { get; set; }
+        public ICommand SortingCommand { get; set; }
+        public ICommand CompareCommand { get; set; }
+        public ICommand StartCommand { get; set; }
+        public ICommand CancelCommand { get; set; }
+        public ICommand CopyCopyInfoCommand { get; set; }
+        public ICommand PasteCopyInfoCommand { get; set; }
         #endregion 命令
 
         public FastCopyViewModel()
@@ -360,6 +407,7 @@ namespace FastCopy.ViewModels
         {
             AddCommand = new DelegateCommand(AddCommandExecute);
             AddChildCommand = new DelegateCommand(AddChildCommandExecute);
+            RefreshCommand = new DelegateCommand(RefreshCommandExecute);
             CopyCommand = new DelegateCommand(CopyFilesExecute);
             DelCommand = new DelegateCommand(DelCommandExecute);
             SelectFileCommand = new DelegateCommand<object>(SelectFileCommandExecute);
@@ -373,6 +421,14 @@ namespace FastCopy.ViewModels
             PackCommand = new DelegateCommand(PackCommandExecute);
             TaskPauseCommand = new DelegateCommand<object>(TaskPauseCommandExecute);
             TaskCancelCommand = new DelegateCommand<object>(TaskCancelCommandExecute);
+            DeleteFilesCommand = new DelegateCommand(DeleteFilesCommandExecute);
+            TopCommand = new DelegateCommand(TopCommandExecute);
+            SortingCommand = new DelegateCommand<DataGridSortingEventArgs>(SortingCommandExecute);
+            CompareCommand = new DelegateCommand(CompareCommandExecute);
+            StartCommand = new DelegateCommand(StartCommandExecute);
+            CancelCommand = new DelegateCommand(CancelCommandExecute);
+            CopyCopyInfoCommand = new DelegateCommand(CopyCopyInfoCommandExecute);
+            PasteCopyInfoCommand = new DelegateCommand(PasteCopyInfoCommandExecute);
         }
         /// <summary>
         /// 添加同级
@@ -385,6 +441,7 @@ namespace FastCopy.ViewModels
                 copyInfoModel.Guid = Guid.NewGuid().ToString();
                 copyInfoModel.SourceAddress = "";
                 copyInfoModel.TargetAddress = "";
+                copyInfoModel.TriangleType = TriangleType.None;
                 if (CurrentCell.Item != null)
                 {
                     CopyInfoModel currentItem = CurrentCell.Item as CopyInfoModel;
@@ -392,16 +449,19 @@ namespace FastCopy.ViewModels
                     copyInfoModel.GridMargin = currentItem.GridMargin;
                 }
                 //CopyInfos.Add(copyInfoModel);
-                if (CurrentIndex > 0)
+                if (CurrentIndex >= 0 && CopyInfos.Count > 0)
                 {
                     CopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
-                    ShowCopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
+                    //ShowCopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
+                    AllCopyInfos.Insert(CurrentIndex+1, copyInfoModel);
                 }
                 else
                 {
                     CopyInfos.Add(copyInfoModel);
-                    ShowCopyInfos.Add(copyInfoModel);
+                    //ShowCopyInfos.Add(copyInfoModel);
+                    AllCopyInfos.Add(copyInfoModel);
                 }
+                copyInfoModel.PropertyChanged += CopyInfoModel_PropertyChanged;
                 m_FastCopyDbContext.CopyInfos.Add(copyInfoModel);
                 UpdateCount();
             }
@@ -410,6 +470,31 @@ namespace FastCopy.ViewModels
 
             }
         }
+
+        private void CopyInfoModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            try
+            {
+                if (sender is CopyInfoModel && e.PropertyName == "IsChecked" && !m_AutoCheck)
+                {
+                    CopyInfoModel copyInfo = sender as CopyInfoModel;
+                    m_AutoCheck = true;
+                    foreach (CopyInfoModel tmpCopyInfo in CopyInfos)
+                    {
+                        if (tmpCopyInfo.Guid != copyInfo.Guid&&tmpCopyInfo.SourceAddress==copyInfo.SourceAddress)
+                        {
+                            tmpCopyInfo.IsChecked = copyInfo.IsChecked;
+                        }
+                    }
+                    m_AutoCheck = false;
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
         /// <summary>
         /// 添加子级
         /// </summary>
@@ -421,24 +506,31 @@ namespace FastCopy.ViewModels
                 copyInfoModel.Guid = Guid.NewGuid().ToString();
                 copyInfoModel.SourceAddress = "";
                 copyInfoModel.TargetAddress = "";
+                copyInfoModel.TriangleType = TriangleType.None;
+                copyInfoModel.ExeIcon = ImageHelper.GetFileIcon("");
                 if (CurrentCell.Item != null)
                 {
                     CopyInfoModel currentItem = CurrentCell.Item as CopyInfoModel;
+                    //展开并添加可展开按钮
+                    AutoExpend(currentItem);
                     copyInfoModel.ParentId = currentItem.Guid;
                     double leftMargin = currentItem.GridMargin.Left;
                     copyInfoModel.GridMargin = new Thickness(10 + leftMargin, 0, 0, 0);
                     currentItem.Children.Add(copyInfoModel);
                 }
+                copyInfoModel.PropertyChanged += CopyInfoModel_PropertyChanged;
                 //CopyInfos.Add(copyInfoModel);
                 if (CurrentIndex >= 0)
                 {
                     CopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
-                    ShowCopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
+                    //ShowCopyInfos.Insert(CurrentIndex + 1, copyInfoModel);
+                    AllCopyInfos.Insert(CurrentIndex+1, copyInfoModel);
                 }
                 else
                 {
                     CopyInfos.Add(copyInfoModel);
-                    ShowCopyInfos.Add(copyInfoModel);
+                    //ShowCopyInfos.Add(copyInfoModel);
+                    AllCopyInfos.Add(copyInfoModel);
                 }
                 m_FastCopyDbContext.CopyInfos.Add(copyInfoModel);
                 UpdateCount();
@@ -530,7 +622,26 @@ namespace FastCopy.ViewModels
             });
         }
 
+        /// <summary>
+        /// 刷新文件最后修改的时间
+        /// </summary>
+        private void RefreshCommandExecute()
+        {
+            try
+            {
+                foreach (CopyInfoModel copyInfo in CopyInfos)
+                {
+                    if (File.Exists(copyInfo.SourceAddress))
+                    {
+                        copyInfo.ModifyDateTime = File.GetLastWriteTime(copyInfo.SourceAddress);
+                    }
+                }
+            }
+            catch(Exception ex) 
+            {
 
+            }
+        }
         /// <summary>
         /// 复制
         /// </summary>
@@ -544,6 +655,7 @@ namespace FastCopy.ViewModels
                 List<CopyInfoModel> succCopyInfoModels = new List<CopyInfoModel>();
                 List<CopyInfoModel> failCopyInfoModels = new List<CopyInfoModel>();
                 List<CopyInfoModel> needCopyInfos = new List<CopyInfoModel>();
+                List<Process> processes = new List<Process>();
                 foreach (CopyInfoModel copyInfoModel in CopyInfos)
                 {
                     if (copyInfoModel.IsChecked)
@@ -575,7 +687,7 @@ namespace FastCopy.ViewModels
                                     if (string.IsNullOrEmpty(copyInfo.TargetAddress))
                                     {
                                         copyInfo.CopyTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                        copyInfo.Status = string.Format("成功{0}个，失败{1}个", 0, 1);
+                                        copyInfo.Result = string.Format("成功{0}个，失败{1}个", 0, 1);
                                         failCopyInfoModels.Add(copyInfo);
                                         ChangeStatuColor(copyInfo, false);
                                     }
@@ -618,7 +730,7 @@ namespace FastCopy.ViewModels
                                                 {
                                                     File.Copy(copyInfo.SourceAddress, destFileName, true);
                                                     copyInfo.CopyTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                                    copyInfo.Status = string.Format("成功{0}个，失败{1}个", 1, 0);
+                                                    copyInfo.Result = string.Format("成功{0}个，失败{1}个", 1, 0);
                                                     succCopyInfoModels.Add(copyInfo);
                                                     ChangeStatuColor(copyInfo, true);
                                                 }
@@ -627,7 +739,7 @@ namespace FastCopy.ViewModels
                                             {
                                                 File.Copy(copyInfo.SourceAddress, destFileName, true);
                                                 copyInfo.CopyTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                                copyInfo.Status = string.Format("成功{0}个，失败{1}个", 1, 0);
+                                                copyInfo.Result = string.Format("成功{0}个，失败{1}个", 1, 0);
                                                 succCopyInfoModels.Add(copyInfo);
                                                 ChangeStatuColor(copyInfo, true);
                                             }
@@ -636,18 +748,21 @@ namespace FastCopy.ViewModels
                                         {
                                             File.Copy(copyInfo.SourceAddress, destFileName, true);
                                             copyInfo.CopyTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                            copyInfo.Status = string.Format("成功{0}个，失败{1}个", 1, 0);
+                                            copyInfo.Result = string.Format("成功{0}个，失败{1}个", 1, 0);
                                             succCopyInfoModels.Add(copyInfo);
                                             ChangeStatuColor(copyInfo, true);
                                         }
                                     }
+                                    //processes = FileHelper.GetFileOccupiedProcesses(copyInfo.SourceAddress);
                                 }
                                 catch (Exception ex)
                                 {
                                     copyInfo.CopyTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                    copyInfo.Status = string.Format("成功{0}个，失败{1}个", 0, 1);
+                                    copyInfo.Result = string.Format("成功{0}个，失败{1}个", 0, 1);
                                     failCopyInfoModels.Add(copyInfo);
                                     ChangeStatuColor(copyInfo, false);
+                                    //复制异常，判断文件是否被其他应用程序占用
+                                    processes = FileHelper.GetFileOccupiedProcesses(copyInfo.SourceAddress);
                                 }
                             }
                             else if (Directory.Exists(copyInfo.SourceAddress))
@@ -658,11 +773,11 @@ namespace FastCopy.ViewModels
                                 ScanFolder(copyInfo.SourceAddress, ref fileNum);
                                 copyInfo.ProgressMaxNum = fileNum;
                                 copyInfo.ProgressValue = 0;
-                                copyInfo.Status = string.Empty;
+                                copyInfo.Result = string.Empty;
                                 copyInfo.IsPauseVisible = Visibility.Visible;
                                 CopyFolder(copyInfo.SourceAddress, copyInfo.TargetAddress, ref successNum, ref failNum, copyInfo);
                                 copyInfo.CopyTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                copyInfo.Status = string.Format("成功{0}个，失败{1}个", successNum, failNum);
+                                copyInfo.Result = string.Format("成功{0}个，失败{1}个", successNum, failNum);
                                 copyInfo.IsPauseVisible = Visibility.Collapsed;
                                 if (failNum > 0)
                                 {
@@ -672,7 +787,7 @@ namespace FastCopy.ViewModels
                             else
                             {
                                 copyInfo.CopyTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                copyInfo.Status = string.Format("源地址无效");
+                                copyInfo.Result = string.Format("源地址无效");
                                 failCopyInfoModels.Add(copyInfo);
                             }
                         }
@@ -763,7 +878,7 @@ namespace FastCopy.ViewModels
                                     File.Copy(file, destFileName, true);
                                     successNum++;
                                     copyInfo.ProgressValue++;
-                                    copyInfo.Status = string.Format("{0}/{1}", copyInfo.ProgressValue, copyInfo.ProgressMaxNum);
+                                    copyInfo.Result = string.Format("{0}/{1}", copyInfo.ProgressValue, copyInfo.ProgressMaxNum);
                                 }
                             }
                             else
@@ -771,7 +886,7 @@ namespace FastCopy.ViewModels
                                 File.Copy(file, destFileName, true);
                                 successNum++;
                                 copyInfo.ProgressValue++;
-                                copyInfo.Status = string.Format("{0}/{1}", copyInfo.ProgressValue, copyInfo.ProgressMaxNum);
+                                copyInfo.Result = string.Format("{0}/{1}", copyInfo.ProgressValue, copyInfo.ProgressMaxNum);
                             }
                         }
                         else
@@ -779,7 +894,7 @@ namespace FastCopy.ViewModels
                             File.Copy(file, destFileName, true);
                             successNum++;
                             copyInfo.ProgressValue++;
-                            copyInfo.Status = string.Format("{0}/{1}", copyInfo.ProgressValue, copyInfo.ProgressMaxNum);
+                            copyInfo.Result = string.Format("{0}/{1}", copyInfo.ProgressValue, copyInfo.ProgressMaxNum);
                         }
                     }
                     catch (Exception ex)
@@ -818,12 +933,10 @@ namespace FastCopy.ViewModels
             m_TcpService.CopyInfos = CopyInfos;
             m_TcpService.SendMessage(message, ip, port);
         }
-
         private void M_TcpService_ChangeCopyInfoEven()
         {
             throw new NotImplementedException();
         }
-
         /// <summary>
         /// 删除记录
         /// </summary>
@@ -1044,6 +1157,15 @@ namespace FastCopy.ViewModels
                 }
             }
         }
+        private void AutoExpend(CopyInfoModel copyInfo)
+        {
+            if (copyInfo.IsExpended==false)
+            {
+                copyInfo.IsExpended = true;
+                copyInfo.TriangleType = TriangleType.Fill;
+                GetChildren(copyInfo);
+            }
+        }
         private void GetChildren(CopyInfoModel copyInfoModel)
         {
             List<CopyInfoModel> copyInfoModels = AllCopyInfos.Where(x => x.ParentId == copyInfoModel.Guid).ToList();
@@ -1064,8 +1186,9 @@ namespace FastCopy.ViewModels
                     copyInfo.IsVisible = Visibility.Visible;
                 }
                 copyInfoModel.TriangleType = TriangleType.Fill;
+                copyInfo.Children.Add(copyInfo);
                 CopyInfos.Insert(index, copyInfo);
-                ShowCopyInfos.Insert(index, copyInfo);
+                //ShowCopyInfos.Insert(index, copyInfo);
             }
         }
         private void RemoveChildren(CopyInfoModel copyInfoModel)
@@ -1075,7 +1198,7 @@ namespace FastCopy.ViewModels
             {
                 RemoveChildren(copyInfo);
                 CopyInfos.Remove(copyInfo);
-                ShowCopyInfos.Remove(copyInfo);
+                //ShowCopyInfos.Remove(copyInfo);
             }
         }
 
@@ -1167,7 +1290,7 @@ namespace FastCopy.ViewModels
         /// <summary>
         /// 取消复制
         /// </summary>
-        private void TaskCancelCommandExecute(object obj) 
+        private void TaskCancelCommandExecute(object obj)
         {
             var item = obj as CopyInfoModel;
             if (item.CancellationTokenSource != null)
@@ -1176,7 +1299,37 @@ namespace FastCopy.ViewModels
                 item.CancellationTokenSource.Cancel();
             }
         }
-
+        private void CompareCommandExecute()
+        {
+            var items = CopyInfos.Where(x => x.IsChecked);
+            if (items != null && items.Count() > 0)
+            {
+                foreach (var item in items)
+                {
+                    if (Directory.Exists(item.SourceAddress) && Directory.Exists(item.TargetAddress))
+                    {
+                        CompareView compareView = new CompareView();
+                        CompareViewModel compareViewModel = new CompareViewModel(compareView);
+                        compareViewModel.SourceDir = item.SourceAddress;
+                        compareViewModel.TargetDir = item.TargetAddress;
+                        compareView.DataContext = compareViewModel;
+                        compareView.Owner = FastCopyView;
+                        compareView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                        compareView.Show();
+                    }
+                }
+            }
+            else
+            {
+                CompareView compareView = new CompareView();
+                CompareViewModel compareViewModel = new CompareViewModel(compareView);
+                compareView.DataContext = compareViewModel;
+                compareView.Owner = FastCopyView;
+                compareView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                compareView.Show();
+            }
+           
+        }
         /// <summary>
         /// 初始化数据
         /// </summary>
@@ -1193,7 +1346,7 @@ namespace FastCopy.ViewModels
             try
             {
                 AllCopyInfos = m_FastCopyDbContext.CopyInfos.ToList();
-                List<CopyInfoModel> copyInfoModels = m_FastCopyDbContext.CopyInfos.AsQueryable().Where(x => x.ParentId == null || string.IsNullOrEmpty(x.ParentId)).OrderBy(x => x.Sort).ToList();
+                List<CopyInfoModel> copyInfoModels = m_FastCopyDbContext.CopyInfos.Where(x => x.ParentId == null || string.IsNullOrEmpty(x.ParentId)).OrderBy(x => x.Sort).ToList();
                 foreach (CopyInfoModel copyInfoModel in copyInfoModels)
                 {
                     string fileExt = Path.GetExtension(copyInfoModel.SourceAddress).TrimStart('.');
@@ -1225,6 +1378,25 @@ namespace FastCopy.ViewModels
                     {
                         copyInfoModel.IsVisible = Visibility.Visible;
                     }
+                    if (copyInfoModel.IsTop==true)
+                    {
+                        copyInfoModel.TopVisible = Visibility.Visible;
+                    }
+                    else
+                    {
+                        copyInfoModel.TopVisible = Visibility.Collapsed;
+                    }
+                    if (copyInfoModel.TodoStatus == 1)
+                    {
+                        copyInfoModel.TodoStatusVisible = Visibility.Visible;
+                        copyInfoModel.TodoIcon = new BitmapImage(new Uri("../Images/finish.png", UriKind.RelativeOrAbsolute));
+                    }
+                    else if(copyInfoModel.TodoStatus == 0)
+                    {
+                        copyInfoModel.TodoStatusVisible = Visibility.Visible;
+                        copyInfoModel.TodoIcon = new BitmapImage(new Uri("../Images/progress.png", UriKind.RelativeOrAbsolute));
+                    }
+                    copyInfoModel.PropertyChanged += CopyInfoModel_PropertyChanged;
                     CopyInfos.Add(copyInfoModel);
                     ShowCopyInfos.Add(copyInfoModel);
                     if (copyInfoModel.IsExpended == true)
@@ -1238,6 +1410,7 @@ namespace FastCopy.ViewModels
                 System.Windows.MessageBox.Show(ex.ToString());
             }
         }
+
         /// <summary>
         /// 获取模式
         /// </summary>
@@ -1463,6 +1636,184 @@ namespace FastCopy.ViewModels
                     copyInfoModel.BackGroundColor = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(255, 0, 0));
                 }
             });
+        }
+        /// <summary>
+        /// 删除源地址下的文件
+        /// </summary>
+        private void DeleteFilesCommandExecute()
+        {
+            bool isCheck = false;
+            foreach (CopyInfoModel copyInfo in CopyInfos) 
+            {
+                if (copyInfo.IsChecked)
+                {
+                    isCheck = true;
+                }
+            }
+            if (!isCheck)
+            {
+                System.Windows.MessageBox.Show("请选择需要删除的内容", "提示");
+                return;
+            }
+            if (System.Windows.MessageBox.Show("是否要删除源地址下的内容","提示", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                foreach (CopyInfoModel copyInfo in CopyInfos)
+                {
+                    if (copyInfo.IsChecked)
+                    {
+                        if (Directory.Exists(copyInfo.SourceAddress))
+                        {
+                            Directory.Delete(copyInfo.SourceAddress, true);
+                        }
+                        if (File.Exists(copyInfo.SourceAddress))
+                        {
+                            File.Delete(copyInfo.SourceAddress);
+                        }
+                    }
+                }
+                System.Windows.MessageBox.Show("删除成功。","提示");
+            }
+
+        }
+        /// <summary>
+        /// 内容置顶
+        /// </summary>
+        private void TopCommandExecute()
+        {
+            foreach(CopyInfoModel copyInfo in CopyInfos)
+            {
+                if (copyInfo.IsChecked)
+                {
+                    if (copyInfo.IsTop==true)
+                    {
+                        copyInfo.IsTop = false;
+                        copyInfo.TopVisible = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        copyInfo.IsTop = true;
+                        copyInfo.TopVisible = Visibility.Visible;
+                    }
+                }
+            }
+            SortCopyInfos(null);
+        }
+        private void SortCopyInfos(DataGridColumn dataGridColumn)
+        {
+            if (dataGridColumn == null)
+            {
+                List<CopyInfoModel> copyInfos = CopyInfos.OrderByDescending(x => x.IsTop).ToList();
+                CopyInfos.Clear();
+                foreach (CopyInfoModel copyInfo in copyInfos)
+                {
+                    CopyInfos.Add(copyInfo);
+                }
+            }
+            else
+            {
+                if (dataGridColumn.Header.ToString() == "修改日期")
+                {
+                    if (dataGridColumn.SortDirection == System.ComponentModel.ListSortDirection.Ascending)
+                    {
+                        List<CopyInfoModel> copyInfos = CopyInfos.OrderByDescending(x => x.IsTop).ThenBy(x=>x.ModifyDateTime).ToList();
+                        CopyInfos.Clear();
+                        foreach (CopyInfoModel copyInfo in copyInfos)
+                        {
+                            CopyInfos.Add(copyInfo);
+                        }
+                    }
+                    else
+                    {
+                        List<CopyInfoModel> copyInfos = CopyInfos.OrderByDescending(x => x.IsTop).ThenByDescending(x => x.ModifyDateTime).ToList();
+                        CopyInfos.Clear();
+                        foreach (CopyInfoModel copyInfo in copyInfos)
+                        {
+                            CopyInfos.Add(copyInfo);
+                        }
+                    }
+                }
+            }
+           
+        }
+        private void SortingCommandExecute(DataGridSortingEventArgs e)
+        {
+            if (e.Column.SortDirection == System.ComponentModel.ListSortDirection.Ascending)
+            {
+                e.Column.SortDirection = System.ComponentModel.ListSortDirection.Descending;
+            }
+            else
+            {
+                e.Column.SortDirection = System.ComponentModel.ListSortDirection.Ascending;
+            }
+            SortCopyInfos(e.Column);
+            e.Handled = true;
+        }
+        private void StartCommandExecute()
+        {
+            foreach (var copyInfo in CopyInfos)
+            {
+                if (copyInfo.IsChecked)
+                {
+                    if (copyInfo.TodoStatus!=0)
+                    {
+                        copyInfo.TodoStatus = 0;
+                        copyInfo.TodoStatusVisible = Visibility.Visible;
+                        copyInfo.TodoIcon = new BitmapImage(new Uri("../Images/progress.png", UriKind.RelativeOrAbsolute));
+                        TodoStatus = "完成";
+                        TodoIcon= new BitmapImage(new Uri("../Images/finish.png", UriKind.RelativeOrAbsolute));
+                    }
+                    else if(copyInfo.TodoStatus == 0)
+                    {
+                        copyInfo.TodoStatus = 1;
+                        copyInfo.TodoStatusVisible = Visibility.Visible;
+                        copyInfo.TodoIcon = new BitmapImage(new Uri("../Images/finish.png", UriKind.RelativeOrAbsolute));
+                        TodoStatus = "开始";
+                        TodoIcon = new BitmapImage(new Uri("../Images/progress.png", UriKind.RelativeOrAbsolute));
+                    }
+                }
+            }
+        }
+        private void CancelCommandExecute()
+        {
+            foreach (var copyInfo in CopyInfos)
+            {
+                if (copyInfo.IsChecked)
+                {
+                    copyInfo.TodoStatus = -1;
+                    copyInfo.TodoStatusVisible = Visibility.Collapsed;
+                }
+            }
+        }
+        private void CopyCopyInfoCommandExecute()
+        {
+            if (CurrentItem != null)
+            {
+                try
+                {
+                    CopyInfoForCopy = CurrentItem.Clone();
+                }
+                catch(Exception ex)
+                {
+
+                }
+            }
+        }
+        private void PasteCopyInfoCommandExecute()
+        {
+            if (CopyInfoForCopy != null)
+            {
+                if (CurrentIndex >= 0)
+                {
+                    CopyInfos.Insert(CurrentIndex + 1, CopyInfoForCopy);
+                    AllCopyInfos.Insert(CurrentIndex+1, CopyInfoForCopy);
+                }
+                else
+                {
+                    CopyInfos.Add(CopyInfoForCopy);
+                    AllCopyInfos.Add(CopyInfoForCopy);
+                }
+                m_FastCopyDbContext.CopyInfos.Add(CopyInfoForCopy);
+            }
         }
     }
 }

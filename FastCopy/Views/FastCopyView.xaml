@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FastCopy.Common"
-        xmlns:controlEx="clr-namespace:FastCopy.Behaviors" 
+        xmlns:controlEx="clr-namespace:FastCopy.Behaviors"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         Icon="../Images/fastcopy.ico"
         x:Name="FastCopyWin"
@@ -37,9 +38,18 @@
                     <Image Source="/Images/open.png"/>
                 </MenuItem.Icon>
             </MenuItem>
-            <!--MenuItem Header="复制" Command="{Binding Path=SelectSourceDirCommand}"></MenuItem>
-            <MenuItem Header="剪切" Command="{Binding Path=SelectSourceDirCommand}"></MenuItem>
-            <MenuItem Header="粘贴" Command="{Binding Path=SelectSourceDirCommand}"></MenuItem>-->
+            <MenuItem Header="置顶" Command="{Binding Path=TopCommand,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <Image Source="/Images/top.png"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="删除" Command="{Binding Path=DelCommand,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                <MenuItem.Icon>
+                    <Image Source="/Images/delete.png"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="复制（整行）" Command="{Binding Path=CopyCopyInfoCommand}"></MenuItem>
+            <MenuItem Header="粘贴（整行）" Command="{Binding Path=PasteCopyInfoCommand}"></MenuItem>
         </ContextMenu>
         <Style x:Key="contentCenterStyle" TargetType="{x:Type TextBlock}">
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
@@ -51,7 +61,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"></RowDefinition>
-            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
@@ -66,42 +76,111 @@
         </Menu>
         <ToolBarTray Grid.Row="1" IsLocked="True">
             <ToolBar TabIndex="0">
-                <Button Width="25" Height="25" ToolTip="添加同级行" Command="{Binding AddCommand}">
-                    <Image Source="/Images/add.png"></Image>
+                <Button  ToolTip="添加同级行" Command="{Binding AddCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/add.png"></Image>
+                        <Label Content="添加同级"></Label>
+                    </StackPanel>
                 </Button>
-                <Button Width="25" Height="25" ToolTip="添加子级行" Command="{Binding AddChildCommand}">
-                    <Image Source="/Images/addchild.png" />
+                <Button ToolTip="添加子级行" Command="{Binding AddChildCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/addchild.png" />
+                        <Label Content="添加子级"></Label>
+                    </StackPanel>
                 </Button>
-                <Button Width="25" Height="25" ToolTip="删除" Command="{Binding DelCommand}">
-                    <Image Source="/Images/delete.png" />
+                <Button  ToolTip="删除" Command="{Binding DelCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/delete.png" />
+                        <Label Content="删除"></Label>
+                    </StackPanel>
+                </Button>
+                <Button  ToolTip="置顶勾选的内容" Command="{Binding TopCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/top.png" />
+                        <Label Content="置顶"></Label>
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding StartCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="{Binding TodoIcon}" />
+                        <Label Content="{Binding TodoStatus}"></Label>
+                    </StackPanel>
+                </Button>
+                <Button  ToolTip="取消任务" Command="{Binding CancelCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/cancel.png" />
+                        <Label Content="取消"></Label>
+                    </StackPanel>
                 </Button>
             </ToolBar>
             <ToolBar VerticalContentAlignment="Top" Visibility="Visible">
-                <Button Width="25" Height="25" ToolTip="复制" Command="{Binding CopyCommand}">
-                    <Image Source="/Images/copy.png" />
+                <Button ToolTip="刷新文件修改时间" Command="{Binding RefreshCommand}">
+                    <StackPanel Orientation="Vertical">
+                        <Image Width="25" Height="25" Source="/Images/refresh.png" />
+                        <Label Content="刷新"></Label>
+                    </StackPanel>
                 </Button>
-                <Button Width="25" Height="25" ToolTip="打包" Command="{Binding PackCommand}">
-                    <Image Source="/Images/pack.png" />
+                <Button ToolTip="复制" Command="{Binding CopyCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/copy.png" />
+                        <Label Content="复制"></Label>
+                    </StackPanel>
                 </Button>
-                <Button Width="25" Height="25" ToolTip="导入" Command="{Binding ImportCommand}">
-                    <Image Source="/Images/import.png" />
+                <Button ToolTip="打包" Command="{Binding PackCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/pack.png" />
+                        <Label Content="打包"></Label>
+                    </StackPanel>
                 </Button>
-                <Button Width="25" Height="25" ToolTip="导出" Command="{Binding ExportCommand}">
-                    <Image Source="/Images/export.png" />
+                <Button ToolTip="文件" Command="{Binding CompareCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/compare.png" />
+                        <Label Content="对比"></Label>
+                    </StackPanel>
+                </Button>
+                <Button ToolTip="导入" Command="{Binding ImportCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/import.png" />
+                        <Label Content="导入"></Label>
+                    </StackPanel>
+                </Button>
+                <Button  ToolTip="导出" Command="{Binding ExportCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/export.png" />
+                        <Label Content="导出"></Label>
+                    </StackPanel>
+                </Button>
+                <Button  ToolTip="删除源目录下的文件和文件夹" Command="{Binding DeleteFilesCommand}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/deletefiles.png" />
+                        <Label Content="删除"></Label>
+                    </StackPanel>
                 </Button>
             </ToolBar>
             <ToolBar>
-                <CheckBox Width="25" Height="25" IsChecked="{Binding AutoIsChecked}">
-                    <Image Source="/Images/play.png" ToolTip="自动模式"/>
+                <CheckBox IsChecked="{Binding AutoIsChecked}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/play.png" ToolTip="自动模式"/>
+                        <Label Content="自动模式"></Label>
+                    </StackPanel>
                 </CheckBox>
-                <CheckBox Width="25" Height="25" IsChecked="{Binding BakIsChecked}">
-                    <Image Source="/Images/bak.png" ToolTip="备份模式"/>
+                <CheckBox IsChecked="{Binding BakIsChecked}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/bak.png" ToolTip="备份模式"/>
+                        <Label Content="备份模式"></Label>
+                    </StackPanel>
                 </CheckBox>
-                <CheckBox Width="25" Height="25" IsChecked="{Binding SyncIsChecked}">
-                    <Image Source="/Images/sync.png" ToolTip="同步模式"/>
+                <CheckBox IsChecked="{Binding SyncIsChecked}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/sync.png" ToolTip="同步模式"/>
+                        <Label Content="同步模式"></Label>
+                    </StackPanel>
                 </CheckBox>
-                <CheckBox Width="25" Height="25" IsChecked="{Binding ClockIsChecked}">
-                    <Image Source="/Images/clock.png" ToolTip="定时模式"/>
+                <CheckBox  IsChecked="{Binding ClockIsChecked}">
+                    <StackPanel>
+                        <Image Width="25" Height="25" Source="/Images/clock.png" ToolTip="定时模式"/>
+                        <Label Content="定时模式"></Label>
+                    </StackPanel>
                 </CheckBox>
             </ToolBar>
             <ToolBar TabIndex="2">
@@ -125,10 +204,16 @@
                   SelectedIndex="{Binding CurrentIndex,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                   BorderBrush="{x:Null}" 
                   BorderThickness="0,0,0,0"
-                  AllowDrop="True">
+                  AllowDrop="True"
+                  CanUserSortColumns="True">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Sorting">
+                    <i:InvokeCommandAction Command="{Binding SortingCommand}" PassEventArgsToCommand="True"></i:InvokeCommandAction>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             <!--<DataGrid.CellStyle>-->
-                <!--controlEx:DragDropRowBehavior.Enabled="True"-->
-                  <!--controlEx:DragDropRowBehavior.PopupControl="{Binding ElementName=popup}"-->
+            <!--controlEx:DragDropRowBehavior.Enabled="True"-->
+            <!--controlEx:DragDropRowBehavior.PopupControl="{Binding ElementName=popup}"-->
             <!--<Style TargetType="DataGridCell">
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True">
@@ -170,7 +255,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="源地址" Width="Auto">
+                <DataGridTemplateColumn Header="源地址" Width="150">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Grid HorizontalAlignment="Stretch" Margin="{Binding Path=GridMargin}">
@@ -181,20 +266,12 @@
                                 </Grid.ColumnDefinitions>
                                 <Controls:TriangleCtl Visibility="{Binding IsVisible}"  Grid.Column="0" Width="10" Height="10" DrawType="{Binding Path=TriangleType,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Binding Path=DataContext.ExpendedCommand,Mode=TwoWay, UpdateSourceTrigger=PropertyChanged,RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding .}"/>
                                 <Image Grid.Column="1" MaxWidth="15" MaxHeight="15" Source="{Binding Path=ExeIcon}" VerticalAlignment="Center"></Image>
-                                <TextBox Grid.Column="2" controlEx:DragDropRowBehavior.PopupControl="{Binding ElementName=popup}" Text="{Binding Path=SourceAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" BorderThickness="0" ContextMenu="{StaticResource cellContextMenu}" Width="auto">
-                                </TextBox>
-                                <!--<RichTextBox controlEx:DragDropRowBehavior.PopupControl="{Binding ElementName=popup}"  Margin="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" BorderThickness="0" ContextMenu="{StaticResource cellContextMenu}" VerticalAlignment="Center">
-                                    <FlowDocument>
-                                        <Paragraph>
-                                            <Run Text="{Binding Path=SourceAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></Run>
-                                            <Image MaxWidth="15" MaxHeight="15" Source="{Binding Path=ExeIcon}" VerticalAlignment="Bottom" Margin="0,-1,0,0"></Image>
-                                        </Paragraph>
-                                    </FlowDocument>
-                                </RichTextBox>-->
+                                <TextBox Grid.Column="2" controlEx:DragDropRowBehavior.PopupControl="{Binding ElementName=popup}" Text="{Binding Path=SourceAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" BorderThickness="0" ContextMenu="{StaticResource cellContextMenu}" Width="auto"></TextBox>
                             </Grid>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTextColumn Header="修改日期" IsReadOnly="True" Width="Auto" Binding="{Binding Path=ModifyDateTime}" ElementStyle="{StaticResource contentCenterStyle}" CanUserSort="False"></DataGridTextColumn>
                 <!--<DataGridTextColumn Header="源地址" Binding="{Binding Path=SourceAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>-->
                 <DataGridTemplateColumn Header="目标地址" Width="Auto">
                     <DataGridTemplateColumn.CellTemplate>
@@ -202,6 +279,16 @@
                             <Grid HorizontalAlignment="Stretch">
                                 <TextBox controlEx:DragDropRowBehavior.PopupControl="{Binding ElementName=popup}" Text="{Binding Path=TargetAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" BorderThickness="0" ContextMenu="{StaticResource cellContextMenu}"></TextBox>
                             </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="状态">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Image Width="20" Height="20" ToolTip="置顶" Source="/Images/top.png" Visibility="{Binding Path=TopVisible}"></Image>
+                                <Image Width="20" Height="20" Source="{Binding TodoIcon}" Visibility="{Binding Path=TodoStatusVisible}"></Image>
+                            </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -222,7 +309,7 @@
                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                     <ColumnDefinition Width="auto"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Panel.ZIndex="2" Content="{Binding Path=Status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" BorderThickness="0" ContextMenu="{StaticResource cellContextMenu}"></Label>
+                                <Label Grid.Column="0" Panel.ZIndex="2" Content="{Binding Path=Result, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="0" VerticalContentAlignment="Center" HorizontalContentAlignment="Stretch" BorderThickness="0" ContextMenu="{StaticResource cellContextMenu}"></Label>
                                 <ProgressBar Grid.Column="0" Value="{Binding Path=ProgressValue}" Maximum="{Binding Path=ProgressMaxNum}" Foreground="Orange" Background="{Binding Path=BackGroundColor}" BorderBrush="{x:Null}"></ProgressBar>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Visibility="{Binding IsPauseVisible}">
                                     <Button  Width="20" Height="20" Foreground="{x:Null}" Command="{Binding DataContext.TaskPauseCommand,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged,ElementName=FastCopyWin}" CommandParameter="{Binding Path=.}">
@@ -240,8 +327,8 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="备注" IsReadOnly="False" Width="Auto" Binding="{Binding Path=Remark}" ElementStyle="{StaticResource contentCenterStyle}">
-                </DataGridTextColumn>
+                <DataGridTextColumn Header="备注" IsReadOnly="False" Width="Auto" Binding="{Binding Path=Remark}" ElementStyle="{StaticResource contentCenterStyle}"></DataGridTextColumn>
+
             </DataGrid.Columns>
         </DataGrid>
         <!--<TreeView Grid.Row="2" ItemsSource="{Binding CopyInfos}">

@@ -17,7 +17,6 @@ namespace FastCopy.DataBase
             CreateTables();
             AlterTables();
         }
-
         public bool AlterTables()
         {
             List<string> sqls = new List<string>();
@@ -26,6 +25,13 @@ namespace FastCopy.DataBase
             sqls.Add(@"alter table CopyInfo add column ParentId TEXT");
             sqls.Add(@"alter table CopyInfo add column IsExpended INTEGER");
             sqls.Add(@"alter table CopyInfo add column Remark TEXT");
+            sqls.Add($"alter table CopyInfo add column ModifyDateTime DATETIME");
+            //添加结果字段
+            sqls.Add($"alter table CopyInfo add column Result TEXT");
+            //添加置顶字段
+            sqls.Add($"alter table CopyInfo add column IsTop BOOL");
+            //添加是否完成字段
+            sqls.Add($"alter table CopyInfo add column TodoStatus INT");
             foreach (string sql in sqls)
             {
                 try
@@ -52,15 +58,12 @@ namespace FastCopy.DataBase
             sqls.Add(string.Format(" create table if not exists DetailSetModel (Id INTEGER PRIMARY KEY,EName TEXT,CName TEXT,Value TEXT,Type TEXT)"));
             sqls.Add(string.Format(" create table if not exists DbVersion(Id INTEGER PRIMARY KEY,Version TEXT)"));
             sqls.Add(string.Format(" create table if not exists FtpInfo(Guid TEXT PRIMARY KEY,CopyInfoId TEXT,Ip TEXT,Path TEXT,Port INTERGER,UserName TEXT,Password TEXT,IsPassiveMode INTEGER)"));
-
             foreach (string sql in sqls)
             {
                 res = await m_FastCopyDbContext.Database.ExecuteSqlRawAsync(sql);
             }
-
             return res;
         }
-
         public bool DeleteTables()
         {
             throw new NotImplementedException();
