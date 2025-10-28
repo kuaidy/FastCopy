@@ -201,7 +201,7 @@ namespace FastCopy.ViewModels
         private void GetSetData()
         {
             //常规配置
-            DetailSetModels = m_FastCopyDbContext.DetailSetModels.Where(x=>x.Type== ConstantParameter.NormalSet).ToList();
+            DetailSetModels = m_FastCopyDbContext.DetailSetModels.AsQueryable().Where(x=>x.Type== ConstantParameter.NormalSet).ToList();
             foreach (DetailSetModel detailSetModel in DetailSetModels)
             {
                 switch (detailSetModel.EName)
@@ -234,7 +234,7 @@ namespace FastCopy.ViewModels
                 }
             }
             //文件打开配置
-            var items= m_FastCopyDbContext.DetailSetModels.Where(x => x.Type == ConstantParameter.OpenFileSet).ToList();
+            var items= m_FastCopyDbContext.DetailSetModels.AsQueryable().Where(x => x.Type == ConstantParameter.OpenFileSet).ToList();
             foreach(var item in items) 
             {
                 OpenFileSetInfos.Add(item);
