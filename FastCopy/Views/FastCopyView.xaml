@@ -54,10 +54,6 @@
         <Style x:Key="contentCenterStyle" TargetType="{x:Type TextBlock}">
             <Setter Property="VerticalAlignment" Value="Center"></Setter>
         </Style>
-        <Style TargetType="{x:Type Label}">
-            <Setter Property="Height" Value="40"></Setter>
-            <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
-        </Style>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Gesture="F5" Command="{Binding Path=OpenFileCommand}"></KeyBinding>
@@ -65,7 +61,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"></RowDefinition>
-            <RowDefinition Height="80"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
         </Grid.RowDefinitions>
@@ -83,13 +79,13 @@
                 <Button  ToolTip="添加同级行" Command="{Binding AddCommand}">
                     <StackPanel>
                         <Image Width="25" Height="25" Source="/Images/add.png"></Image>
-                        <Label Content="添加&#10;同级"></Label>
+                        <Label Content="添加同级"></Label>
                     </StackPanel>
                 </Button>
                 <Button ToolTip="添加子级行" Command="{Binding AddChildCommand}">
                     <StackPanel>
                         <Image Width="25" Height="25" Source="/Images/addchild.png" />
-                        <Label Height="40" VerticalContentAlignment="Center" Content="添加&#10;子级"></Label>
+                        <Label Content="添加子级"></Label>
                     </StackPanel>
                 </Button>
                 <Button  ToolTip="删除" Command="{Binding DelCommand}">
@@ -113,13 +109,7 @@
                 <Button  ToolTip="取消任务" Command="{Binding CancelCommand}">
                     <StackPanel>
                         <Image Width="25" Height="25" Source="/Images/cancel.png" />
-                        <Label Height="40" VerticalContentAlignment="Center" Content="取消"></Label>
-                    </StackPanel>
-                </Button>
-                <Button  ToolTip="添加脚本" Command="{Binding AddScriptCommand}">
-                    <StackPanel>
-                        <Image Width="25" Height="25" Source="/Images/script.png" />
-                        <Label Content="添加&#10;脚本"></Label>
+                        <Label Content="取消"></Label>
                     </StackPanel>
                 </Button>
             </ToolBar>
@@ -171,25 +161,25 @@
                 <CheckBox IsChecked="{Binding AutoIsChecked}">
                     <StackPanel>
                         <Image Width="25" Height="25" Source="/Images/play.png" ToolTip="自动模式"/>
-                        <Label Content="自动&#10;模式"></Label>
+                        <Label Content="自动模式"></Label>
                     </StackPanel>
                 </CheckBox>
                 <CheckBox IsChecked="{Binding BakIsChecked}">
                     <StackPanel>
                         <Image Width="25" Height="25" Source="/Images/bak.png" ToolTip="备份模式"/>
-                        <Label Content="备份&#10;模式"></Label>
+                        <Label Content="备份模式"></Label>
                     </StackPanel>
                 </CheckBox>
                 <CheckBox IsChecked="{Binding SyncIsChecked}">
                     <StackPanel>
                         <Image Width="25" Height="25" Source="/Images/sync.png" ToolTip="同步模式"/>
-                        <Label Content="同步&#10;模式"></Label>
+                        <Label Content="同步模式"></Label>
                     </StackPanel>
                 </CheckBox>
                 <CheckBox  IsChecked="{Binding ClockIsChecked}">
                     <StackPanel>
                         <Image Width="25" Height="25" Source="/Images/clock.png" ToolTip="定时模式"/>
-                        <Label Content="定时&#10;模式"></Label>
+                        <Label Content="定时模式"></Label>
                     </StackPanel>
                 </CheckBox>
             </ToolBar>

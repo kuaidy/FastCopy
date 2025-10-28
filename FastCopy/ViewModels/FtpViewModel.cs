@@ -51,7 +51,7 @@ namespace FastCopy.ViewModels
 
         private void GetFtpInfoByCopyInfoGuid()
         {
-            FtpInfoModel ftpInfoModel = _fastCopyDbContext.FtpInfos.AsQueryable().Where(x => x.CopyInfoId == CopyInfo.Guid).FirstOrDefault();
+            FtpInfoModel ftpInfoModel = _fastCopyDbContext.FtpInfos.Where(x => x.CopyInfoId == CopyInfo.Guid).FirstOrDefault();
             if (ftpInfoModel != null)
             {
                 CurrentFtpInfo.Guid = ftpInfoModel.Guid;
@@ -77,7 +77,7 @@ namespace FastCopy.ViewModels
         }
         private void ConfirmCommandExecute()
         {
-            FtpInfoModel ftpInfoModel = _fastCopyDbContext.FtpInfos.AsQueryable().Where(x => x.Guid == CurrentFtpInfo.Guid).FirstOrDefault();
+            FtpInfoModel ftpInfoModel = _fastCopyDbContext.FtpInfos.Where(x => x.Guid == CurrentFtpInfo.Guid).FirstOrDefault();
             if (ftpInfoModel != null)
             {
                 ftpInfoModel.Ip = CurrentFtpInfo.Ip;

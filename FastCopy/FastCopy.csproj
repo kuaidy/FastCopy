@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>fastcopy.ico</ApplicationIcon>
   </PropertyGroup>
@@ -38,9 +38,6 @@
     <None Remove="Images\play.png" />
     <None Remove="Images\progress.png" />
     <None Remove="Images\refresh.png" />
-    <None Remove="Images\run.png" />
-    <None Remove="Images\save.png" />
-    <None Remove="Images\script.png" />
     <None Remove="Images\stop.png" />
     <None Remove="Images\sync.png" />
     <None Remove="Images\text.png" />
@@ -72,9 +69,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.9" />
@@ -86,7 +81,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
-    <PackageReference Include="WorkflowCore" Version="3.17.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -113,9 +107,6 @@
     <Resource Include="Images\play.png" />
     <Resource Include="Images\progress.png" />
     <Resource Include="Images\refresh.png" />
-    <Resource Include="Images\run.png" />
-    <Resource Include="Images\save.png" />
-    <Resource Include="Images\script.png" />
     <Resource Include="Images\stop.png" />
     <Resource Include="Images\sync.png" />
     <Resource Include="Images\text.png" />
