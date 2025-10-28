@@ -979,6 +979,7 @@ namespace FastCopy.ViewModels
             OpenFileDialog openDlg = new OpenFileDialog();
             openDlg.Title = "选择文件";
             openDlg.Filter = "所有文件 (*.*)|*.*";
+            openDlg.Multiselect = true;
             if (openDlg.ShowDialog() == DialogResult.OK)
             {
                 string headerStr = CurrentCell.Column.Header.ToString();
