@@ -365,6 +365,7 @@ namespace FastCopy.ViewModels
         public ICommand CancelCommand { get; set; }
         public ICommand CopyCopyInfoCommand { get; set; }
         public ICommand PasteCopyInfoCommand { get; set; }
+        public ICommand AddScriptCommand { get; set; }
         #endregion 命令
 
         public FastCopyViewModel()
@@ -429,6 +430,8 @@ namespace FastCopy.ViewModels
             CancelCommand = new DelegateCommand(CancelCommandExecute);
             CopyCopyInfoCommand = new DelegateCommand(CopyCopyInfoCommandExecute);
             PasteCopyInfoCommand = new DelegateCommand(PasteCopyInfoCommandExecute);
+            AddScriptCommand = new DelegateCommand(AddScriptCommandExecute);
+
         }
         /// <summary>
         /// 添加同级
@@ -986,7 +989,22 @@ namespace FastCopy.ViewModels
                             if (CurrentCell.Item != null)
                             {
                                 CopyInfoModel copyInfoModel = CurrentCell.Item as CopyInfoModel;
-                                copyInfoModel.SourceAddress = openDlg.FileName;
+                                int index = 0;
+                                foreach (string filename in openDlg.FileNames)
+                                {
+                                    if (index == 0)
+                                    {
+                                        copyInfoModel.SourceAddress = openDlg.FileName;
+                                    }
+                                    else
+                                    {
+                                        CopyInfoModel newCopyInfoModel = copyInfoModel.Clone();
+                                        newCopyInfoModel.SourceAddress = filename;
+                                        CopyInfos.Add(newCopyInfoModel);
+                                        AllCopyInfos.Add(newCopyInfoModel);
+                                    }
+                                    index++;
+                                }
                             }
                             break;
                         }
@@ -1346,7 +1364,7 @@ namespace FastCopy.ViewModels
             try
             {
                 AllCopyInfos = m_FastCopyDbContext.CopyInfos.ToList();
-                List<CopyInfoModel> copyInfoModels = m_FastCopyDbContext.CopyInfos.Where(x => x.ParentId == null || string.IsNullOrEmpty(x.ParentId)).OrderBy(x => x.Sort).ToList();
+                List<CopyInfoModel> copyInfoModels = m_FastCopyDbContext.CopyInfos.AsQueryable().Where(x => x.ParentId == null || string.IsNullOrEmpty(x.ParentId)).OrderBy(x => x.Sort).ToList();
                 foreach (CopyInfoModel copyInfoModel in copyInfoModels)
                 {
                     string fileExt = Path.GetExtension(copyInfoModel.SourceAddress).TrimStart('.');
@@ -1814,6 +1832,13 @@ namespace FastCopy.ViewModels
                 }
                 m_FastCopyDbContext.CopyInfos.Add(CopyInfoForCopy);
             }
+        }
+        private void AddScriptCommandExecute()
+        {
+            CodeEditViewModel codeEditViewModel = new CodeEditViewModel();
+            CodeEditView codeEditView = new CodeEditView();
+            codeEditView.DataContext = codeEditViewModel;
+            codeEditView.Show();
         }
     }
 }
